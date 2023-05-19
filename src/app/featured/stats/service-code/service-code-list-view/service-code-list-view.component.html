@@ -1,0 +1,189 @@
+<app-loader></app-loader>
+<div class="row mainContainer">
+  <div class="col-3 sideNavContainer">
+    <app-side-main-nav></app-side-main-nav>
+  </div>
+  <div class="col-9 padding-adjustment">
+    <div class="row navbar-height">
+      <app-navbar style="width: 100%; height: 100%"></app-navbar>
+    </div>
+
+    <div class="page-wrapper">
+      <div class="row justify-content-between">
+        <div class="heading">Services</div>
+        <div class="flexTwo">
+          <mat-form-field class="search-bar" appearance="outline">
+            <input matInput (keyup)="applyFilter($event)" #input />
+            <mat-icon matPrefix>search</mat-icon>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <div class="row table-position">
+        <div class="mat-elevation-z8 col-sm-12">
+          <div
+            class="table-header d-flex flex-row justify-content-between"
+            style="background: #ffff"
+          >
+            <div>
+              <mat-icon class="material-icons-outlined mat-icon-specs"
+                >visibility</mat-icon
+              >
+              <span class="sub-heading set-sub-heading-place">
+                Service Codes
+              </span>
+            </div>
+            <div class="flexTwo">
+              <button
+                mat-raised-button
+                class="submit-button"
+                (click)="downloadUsers()"
+              >
+                Download Services
+              </button>
+            </div>
+          </div>
+          <table
+            mat-table
+            [dataSource]="dataSource"
+            matSort
+            #sorter1="matSort"
+            matSortDirection="asc"
+            style="width: 100%"
+            @fadeInGrow
+          >
+            <ng-container matColumnDef="short_code">
+              <th mat-header-cell mat-sort-header *matHeaderCellDef>
+                <b>Service Code</b>
+              </th>
+              <td style="text-align: center" mat-cell *matCellDef="let element">
+                {{ element.short_code }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="code_title">
+              <th mat-header-cell mat-sort-header *matHeaderCellDef>
+                <b>Title</b>
+              </th>
+              <td style="text-align: left" mat-cell *matCellDef="let element">
+                {{ element.code_title }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="esme_name">
+              <th mat-header-cell mat-sort-header *matHeaderCellDef>
+                <b>ESME Name</b>
+              </th>
+              <td style="text-align: left" mat-cell *matCellDef="let element">
+                {{ element.esme_name }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="esme_protocol">
+              <th mat-header-cell mat-sort-header *matHeaderCellDef>
+                <b>ESME Protocol</b>
+              </th>
+              <td style="text-align: left" mat-cell *matCellDef="let element">
+                {{
+                  element.esme_protocol == 1
+                    ? "SMPP"
+                    : element.esme_protocol == 2
+                    ? "HTTP/HTTPS"
+                    : element.esme_protocol == 3
+                    ? "SMS"
+                    : element.esme_protocol == 0
+                    ? "N/A"
+                    : null
+                }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="is_chargable">
+              <th mat-header-cell mat-sort-header *matHeaderCellDef>
+                <b>Charging</b>
+              </th>
+              <td style="text-align: left" mat-cell *matCellDef="let element">
+                {{ element.is_chargable == 1 ? "True" : "False" }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="is_bank_short_code">
+              <th mat-header-cell mat-sort-header *matHeaderCellDef>
+                <b>Banking</b>
+              </th>
+              <td style="text-align: left" mat-cell *matCellDef="let element">
+                {{ element.is_bank_short_code == 1 ? "True" : "False" }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="created_by">
+              <th mat-header-cell mat-sort-header *matHeaderCellDef>
+                <b> Created By</b>
+              </th>
+              <td style="text-align: left" mat-cell *matCellDef="let element">
+                {{ element.created_by }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="created_dt">
+              <th mat-header-cell mat-sort-header *matHeaderCellDef>
+                <b> Created At</b>
+              </th>
+              <td style="text-align: center" mat-cell *matCellDef="let element">
+                {{ element.created_dt }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="action">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td style="text-align: center" mat-cell *matCellDef="let element">
+                <button
+                  mat-icon-button
+                  [matMenuTriggerFor]="menu"
+                  aria-label="Example icon-button with a menu"
+                >
+                  <mat-icon>more_horiz</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                  <button
+                    class="info"
+                    mat-menu-item
+                    (click)="editServiceCode(element)"
+                  >
+                    <mat-icon>edit</mat-icon>
+                    <span>Edit</span>
+                  </button>
+                  <button
+                    class="danger"
+                    mat-menu-item
+                    (click)="openDialog(element)"
+                    *ngIf="
+                      (element.is_normal == 0 || element.is_normal == null) &&
+                      (element.is_whitelist == 0 ||
+                        element.is_whitelist == null)
+                    "
+                  >
+                    <mat-icon>delete</mat-icon>
+                    <span>Delete</span>
+                  </button>
+                </mat-menu>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+
+          <mat-paginator
+            class="Paginating"
+            #MatPaginator
+            [pageSize]="10"
+            [pageSizeOptions]="[5, 10, 20, 50, 100]"
+          >
+          </mat-paginator>
+        </div>
+      </div>
+      <br /><br />
+    </div>
+  </div>
+</div>
